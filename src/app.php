@@ -15,9 +15,26 @@ $app->register(new TwigServiceProvider(), array(
     'twig.options' => array('cache' => __DIR__.'/../cache/twig'),
 ));
 $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
-    // add custom globals, filters, tags, ...
+    $twig->addFilter('markdown', new Twig_SimpleFilter('markdown', function ($string) {
+        $markdown = new dflydev\markdown\MarkdownExtraParser();
+        return $markdown->transformMarkdown($string);
+    }, array('is_safe' => array('html'))));
 
     return $twig;
 }));
+
+$app->register(
+    new Silex\Provider\DoctrineServiceProvider(),
+    array(
+        'db.options' => array(
+            'driver' => 'pdo_mysql',
+            'dbname' => 'CHANGEME',
+            'user' => 'CHANGEME',
+            'password' => 'CHANGEME',
+            'charset' => 'utf8',
+            'driverOptions' => array(PDO::MYSQL_ATTR_INIT_COMMAND, 'SET NAMES utf8')
+        )
+    )
+);
 
 return $app;
